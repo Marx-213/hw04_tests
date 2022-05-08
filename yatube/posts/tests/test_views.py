@@ -36,7 +36,7 @@ class PostPagesTests(TestCase):
         templates_pages_names = {
             reverse('posts:index'): 'posts/index.html',
             reverse(
-                'posts:group_list', kwargs={'slug':  f'{self.group.slug}'}): (
+                'posts:group_list', kwargs={'slug': f'{self.group.slug}'}): (
                 'posts/group_list.html'
             ),
             reverse(
@@ -45,7 +45,7 @@ class PostPagesTests(TestCase):
             ),
             reverse(
                 'posts:profile',
-                kwargs={'username':  f'{self.post.author}'}):
+                kwargs={'username': f'{self.post.author}'}):
                     'posts/profile.html',
             reverse('posts:post_create'): 'posts/create_post.html'
         }
@@ -89,7 +89,7 @@ class PostPagesTests(TestCase):
         """Шаблон group_list сформирован с правильным контекстом."""
         response = self.authorized_client.get(reverse(
             'posts:group_list',
-            kwargs={'slug':  f'{self.group.slug}'})
+            kwargs={'slug': f'{self.group.slug}'})
         )
         self.assertEqual(response.context['group'].title, 'Тестовая группа')
         self.assertEqual(response.context['group'].slug, 'test_slug')
@@ -106,7 +106,7 @@ class PostPagesTests(TestCase):
                 kwargs={'post_id': f'{self.post.id}'}),
             'profile': reverse(
                 'posts:profile',
-                kwargs={'username':  f'{self.post.author}'})
+                kwargs={'username': f'{self.post.author}'})
         }
         for name, reverse_name in templates_pages_names.items():
             with self.subTest(name=name):
@@ -150,10 +150,10 @@ class PaginatorViewsTest(TestCase):
             'index': reverse('posts:index'),
             'group_list': reverse(
                 'posts:group_list',
-                kwargs={'slug':  f'{self.group.slug}'}),
+                kwargs={'slug': f'{self.group.slug}'}),
             'profile': reverse(
                 'posts:profile',
-                kwargs={'username':  f'{self.post.author}'})
+                kwargs={'username': f'{self.post.author}'})
         }
         for name, reverse_name in templates_pages_names.items():
             with self.subTest(name=name):
@@ -161,15 +161,15 @@ class PaginatorViewsTest(TestCase):
                 self.assertEqual(len(response.context['page_obj']), 10)
 
     def test_paginator_correct_context_2(self):
-        """index, group_list, profile содержат 3 постов на второй странице"""
+        """index, group_list, profile содержат 3 поста на второй странице"""
         templates_pages_names = {
             'index': reverse('posts:index') + '?page=2',
             'group_list': reverse(
                 'posts:group_list',
-                kwargs={'slug':  f'{self.group.slug}'}) + '?page=2',
+                kwargs={'slug': f'{self.group.slug}'}) + '?page=2',
             'profile': reverse(
                 'posts:profile',
-                kwargs={'username':  f'{self.post.author}'}) + '?page=2'
+                kwargs={'username': f'{self.post.author}'}) + '?page=2'
         }
         for name, reverse_name in templates_pages_names.items():
             with self.subTest(name=name):
