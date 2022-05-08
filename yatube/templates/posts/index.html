@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+  Последние обновления на сайте
+{% endblock %}
+    
+{% block header %}     
+  Последние обновления на сайте
+{% endblock %}
+
+{% block content %}
+  {% for post in page_obj %}
+    {% include 'includes/card.html' %}
+  {% endfor %}
+  {% include 'posts/includes/paginator.html' %}
+{% endblock %} 
+
+       
