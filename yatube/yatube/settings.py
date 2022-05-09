@@ -18,6 +18,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 POST_AMOUNT = 10
 
 POST_PAGE_COUNT = 10
+
+CSRF_FAILURE_VIEW = 'core.views.csrf_failure'
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
@@ -25,7 +27,7 @@ POST_PAGE_COUNT = 10
 SECRET_KEY = '+ww56@qk(%u^td_wa%u_xp(28bia8u+gmg1in+hn806rg7a+$w'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
     'localhost',
@@ -48,6 +50,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'sorl.thumbnail',
 ]
 
 MIDDLEWARE = [

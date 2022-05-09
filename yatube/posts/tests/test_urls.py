@@ -12,7 +12,11 @@ class PostURLTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.user = User.objects.create_user(username='auth')
+        cls.guest_client = Client()
+        cls.authorized_client = Client()
+        cls.author_client = Client()
+        cls.user = User.objects.create_user(username='HasNoName')
+        cls.authorized_client.force_login(cls.user)
         cls.group = Group.objects.create(
             title='Тестовая группа',
             slug='test_slug',
@@ -22,24 +26,24 @@ class PostURLTests(TestCase):
             author=cls.user,
             text='Тестовый пост'
         )
-
-    def setUp(self):
-        self.guest_client = Client()
-        self.authorized_client = Client()
-        self.author_client = Client()
-        self.user = User.objects.create_user(username='HasNoName')
-        self.authorized_client.force_login(self.user)
-        self.author_client.force_login(self.post.author)
+        cls.author_client.force_login(cls.post.author)
+        cls.template_url_names = {
+            '/': 'posts/index.html',
+            '/group/test_slug/': 'posts/group_list.html',
+            f'/profile/{cls.user}/': 'posts/profile.html',
+            f'/posts/{cls.post.id}/': 'posts/post_detail.html',
+        }
+        cls.template_url_names_2 = {
+            '/': 'posts/index.html',
+            '/group/test_slug/': 'posts/group_list.html',
+            f'/profile/{cls.user}/': 'posts/profile.html',
+            f'/posts/{cls.post.id}/': 'posts/post_detail.html',
+            '/create/': 'posts/create_post.html',
+        }
 
     def test_posts_available_client(self):
         """Общедоступные страницы доступны любому пользователю"""
-        template_url_names = {
-            '/': 'posts/index.html',
-            '/group/test_slug/': 'posts/group_list.html',
-            f'/profile/{self.user}/': 'posts/profile.html',
-            f'/posts/{self.post.id}/': 'posts/post_detail.html',
-        }
-        for address, template in template_url_names.items():
+        for address, template in self.template_url_names.items():
             with self.subTest(template=template):
                 response = self.guest_client.get(address)
                 self.assertEqual(response.status_code, HTTPStatus.OK)
@@ -75,14 +79,7 @@ class PostURLTests(TestCase):
 
     def test_urls_uses_correct_template(self):
         """URL-адрес использует соответствующий шаблон."""
-        template_url_names = {
-            '/': 'posts/index.html',
-            '/group/test_slug/': 'posts/group_list.html',
-            f'/profile/{self.user}/': 'posts/profile.html',
-            f'/posts/{self.post.id}/': 'posts/post_detail.html',
-            '/create/': 'posts/create_post.html',
-        }
-        for address, template in template_url_names.items():
+        for address, template in self.template_url_names_2.items():
             with self.subTest(template=template):
                 response = self.authorized_client.get(address)
                 self.assertTemplateUsed(response, template)

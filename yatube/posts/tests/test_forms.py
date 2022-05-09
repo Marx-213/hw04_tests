@@ -1,3 +1,5 @@
+from http import HTTPStatus
+
 from django.test import Client, TestCase
 from django.urls import reverse
 
@@ -9,7 +11,11 @@ class PostCreateFormTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.user = User.objects.create_user(username='auth')
+        cls.guest_client = Client()
+        cls.authorized_client = Client()
+        cls.author_client = Client()
+        cls.user = User.objects.create_user(username='HasNoName')
+        cls.authorized_client.force_login(cls.user)
         cls.group = Group.objects.create(
             title='Тестовая группа',
             slug='test_slug',
@@ -19,15 +25,8 @@ class PostCreateFormTests(TestCase):
             author=cls.user,
             text='Тестовый пост'
         )
+        cls.author_client.force_login(cls.post.author)
         cls.form = PostForm()
-
-    def setUp(self):
-        self.guest_client = Client()
-        self.authorized_client = Client()
-        self.author_client = Client()
-        self.user = User.objects.create_user(username='HasNoName')
-        self.authorized_client.force_login(self.user)
-        self.author_client.force_login(self.post.author)
 
     def test_create_post(self):
         """Валидная форма создает запись в Post."""
@@ -44,7 +43,8 @@ class PostCreateFormTests(TestCase):
         )
         self.assertRedirects(response, reverse(
             'posts:profile',
-            kwargs={'username': f'{self.user}'}))
+            kwargs={'username': f'{self.user}'})
+        )
         self.assertEqual(Post.objects.count(), posts_count + 1)
         self.assertTrue(
             Post.objects.filter(
@@ -66,7 +66,7 @@ class PostCreateFormTests(TestCase):
             follow=True
         )
         self.assertEqual(Post.objects.count(), posts_count)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertTrue(
             Post.objects.filter(
                 text=self.post.text,
