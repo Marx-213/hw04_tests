@@ -33,25 +33,28 @@ class PostURLTests(TestCase):
             f'/profile/{cls.user}/': 'posts/profile.html',
             f'/posts/{cls.post.id}/': 'posts/post_detail.html',
         }
-        cls.template_url_names_2 = {
-            '/': 'posts/index.html',
-            '/group/test_slug/': 'posts/group_list.html',
-            f'/profile/{cls.user}/': 'posts/profile.html',
-            f'/posts/{cls.post.id}/': 'posts/post_detail.html',
-            '/create/': 'posts/create_post.html',
-        }
 
-    def test_posts_available_client(self):
+    def test_posts_available_guest_client(self):
         """Общедоступные страницы доступны любому пользователю"""
         for address, template in self.template_url_names.items():
             with self.subTest(template=template):
                 response = self.guest_client.get(address)
                 self.assertEqual(response.status_code, HTTPStatus.OK)
 
+    def test_urls_uses_correct_template(self):
+        """URL-адрес использует соответствующий шаблон."""
+        for address, template in self.template_url_names.items():
+            with self.subTest(template=template):
+                response = self.authorized_client.get(address)
+                self.assertTemplateUsed(response, template)
+
     def test_posts_create_url_available_authorized_user(self):
-        """Страница /create/ доступна авторизованному пользователю."""
+        """Страница /create/ доступна авторизованному пользователю
+        и использует соответствующий шаблон.
+        """
         response = self.authorized_client.get('/create/')
         self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertTemplateUsed(response, 'posts/create_post.html')
 
     def test_posts_edit_url_available_author(self):
         """Страница /posts/<int:post_id>/edit/ доступна автору."""
@@ -76,13 +79,6 @@ class PostURLTests(TestCase):
         self.assertRedirects(
             response, f'/auth/login/?next=/posts/{self.post.id}/edit/'
         )
-
-    def test_urls_uses_correct_template(self):
-        """URL-адрес использует соответствующий шаблон."""
-        for address, template in self.template_url_names_2.items():
-            with self.subTest(template=template):
-                response = self.authorized_client.get(address)
-                self.assertTemplateUsed(response, template)
 
     def test_404_page(self):
         """Запрос к несуществующей странице вернёт ошибку 404"""

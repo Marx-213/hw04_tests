@@ -98,12 +98,12 @@ class PostPagesTests(TestCase):
             'posts:group_list',
             kwargs={'slug': f'{self.group.slug}'})
         )
-        new_response = response.context['group']
-        self.assertEqual(new_response.title, self.group.title)
-        self.assertEqual(new_response.slug, self.group.slug)
-        self.assertEqual(new_response.description, self.group.description)
+        group = response.context['group']
+        self.assertEqual(group.title, self.group.title)
+        self.assertEqual(group.slug, self.group.slug)
+        self.assertEqual(group.description, self.group.description)
 
-    def test_show_correct_context(self):
+    def test_views_show_correct_context(self):
         """Шаблоны index, post_detail, profile с правильным контекстом."""
         for name, reverse_name in self.correct_context_names.items():
             with self.subTest(name=name):
@@ -120,35 +120,28 @@ class PaginatorViewsTest(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.user = User.objects.create_user(username='HasNoName')
+        cls.user = User.objects.create_user(username='NoName')
         cls.group = Group.objects.create(
             title='Тестовая группа',
             slug='test_slug',
             description='Тестовое описание',
         )
-        for index in range(13):
-            cls.post = Post.objects.create(
-                author=cls.user,
-                text=f'Тестовый пост {index}',
-                group=cls.group
-            )
+        cls.posts_count = 13
+        cls.posts = Post.objects.bulk_create([Post(
+            id=id,
+            author=cls.user,
+            text=f'Тестовый пост {id}',
+            group=cls.group) for id in range(cls.posts_count)
+        ])
         cls.paginator_context_names = {
-            'index': reverse('posts:index'),
-            'group_list': reverse(
-                'posts:group_list',
-                kwargs={'slug': f'{cls.group.slug}'}),
-            'profile': reverse(
-                'posts:profile',
-                kwargs={'username': f'{cls.post.author}'})
+            'index': '/',
+            'group_list': f'/group/{cls.group.slug}/',
+            'profile': f'/profile/{cls.user}/'
         }
         cls.paginator_context_names_2 = {
-            'index': reverse('posts:index') + '?page=2',
-            'group_list': reverse(
-                'posts:group_list',
-                kwargs={'slug': f'{cls.group.slug}'}) + '?page=2',
-            'profile': reverse(
-                'posts:profile',
-                kwargs={'username': f'{cls.post.author}'}) + '?page=2'
+            'index': '/' + '?page=2',
+            'group_list': f'/group/{cls.group.slug}/' + '?page=2',
+            'profile': f'/profile/{cls.user}/' + '?page=2'
         }
 
     def test_paginator_correct_context(self):

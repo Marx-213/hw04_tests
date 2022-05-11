@@ -18,19 +18,24 @@ class PostModelTest(TestCase):
         )
         cls.post = Post.objects.create(
             author=cls.user,
-            text='Тестовый пост',
+            text='Тестовый пост и пост',
         )
 
     def test_models_have_correct_object_names(self):
-        """Проверяем, что у моделей корректно работает __str__."""
+        """Проверяем, что у модели Post корректно работает __str__."""
+        post = self.post
+        expected_object_name = post.text[:15]
+        self.assertEqual(expected_object_name, str(post))
+
+    def test_object_name_is_title_fild(self):
+        """Проверяем, что у модели Group корректно работает __str__."""
         group = self.group
-        group_title = group.title
-        title = 'Тестовая группа'
-        self.assertEqual(group_title, title)
+        expected_object_name = group.title
+        self.assertEqual(expected_object_name, str(group))
 
     def test_verbose_name(self):
         """verbose_name в полях совпадает с ожидаемым."""
-        group = PostModelTest.group
+        group = self.group
         field_verboses = {
             'title': 'заголовок',
             'slug': 'слаг',
@@ -43,7 +48,7 @@ class PostModelTest(TestCase):
 
     def test_help_text(self):
         """help_text в полях совпадает с ожидаемым."""
-        post = PostModelTest.post
+        post = self.post
         field_help_texts = {
             'text': 'Введите текст поста',
             'group': 'Группа, к которой будет относиться пост',

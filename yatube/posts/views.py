@@ -72,11 +72,11 @@ def post_create(request):
 @login_required
 def post_edit(request, post_id):
     post = get_object_or_404(Post, id=post_id)
-    form = PostForm(request.POST or None, instance=post)
-    title = 'Редактировать запись'
     if request.user != post.author:
         return redirect('posts:profile', username=post.author)
-    elif not form.is_valid():
+    form = PostForm(request.POST or None, instance=post)
+    title = 'Редактировать запись'
+    if not form.is_valid():
         context = {
             'form': form,
             'title': title

@@ -9,7 +9,7 @@ class Group(models.Model):
     slug = models.SlugField('слаг', unique=True)
     description = models.TextField('описание')
 
-    def _str_(self) -> str:
+    def __str__(self) -> str:
         return self.title
 
 
@@ -37,5 +37,5 @@ class Post(models.Model):
         verbose_name = 'Пост'
         verbose_name_plural = 'Посты'
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.text[:15]
