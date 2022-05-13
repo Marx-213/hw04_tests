@@ -26,7 +26,7 @@
               {% endfor %}
           {% endif %}
 
-          <form method="post"
+          <form method="post" enctype="multipart/form-data"
             {% if action_url %}
               action="{% url action_url %}"
             {% endif %}
@@ -53,6 +53,12 @@
                         {% endfor %}
                       </option>
                     </select>
+                    <div class="form-group row my-3 p-3">
+                      <label for="id_image">
+                        Картинка                      
+                      </label>
+                      <input type="file" name="image" accept="image/*" class="form-control" id="id_image">                    
+                    </div>
                   {% endif %}
               </label>
             </div>

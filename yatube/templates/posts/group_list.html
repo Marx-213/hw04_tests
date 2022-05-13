@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load thumbnail %}
 {% load static %}
 {% block title %}
   Записи сообщества {{ group.title }}
@@ -9,6 +10,7 @@
 {% endblock %}
   
 {% block content %}
+  {% include 'posts/includes/switcher.html' %}
   {% for post in page_obj %}
     {% include 'includes/card.html' %}
   {% endfor %}

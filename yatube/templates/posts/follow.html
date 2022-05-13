@@ -1,14 +1,12 @@
 {% extends 'base.html' %}
 {% load thumbnail %}
 {% load static %}
-{% load cache %}
-{% cache 20 index_page with page_obj %}
 {% block title %}
-  Последние обновления на сайте
+Посты авторов, на которых подписан пользователь
 {% endblock %}
     
 {% block header %}     
-  Последние обновления на сайте
+Посты авторов, на которых подписан пользователь
 {% endblock %}
 
 {% block content %}
@@ -17,6 +15,5 @@
     {% include 'includes/card.html' %}
   {% endfor %}
   {% include 'posts/includes/paginator.html' %}
-{% endblock %} 
-{% endcache %}
+{% endblock %}
        
