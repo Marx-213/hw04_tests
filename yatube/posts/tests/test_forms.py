@@ -89,7 +89,6 @@ class PostCreateFormTests(TestCase):
                 author=self.user,
                 text=self.post.text,
                 group=self.group.id,
-                image='posts/small.gif'
             ).exists()
         )
 
