@@ -1,14 +1,16 @@
 import shutil
 import tempfile
 from http import HTTPStatus
-
+from django.contrib.auth import get_user_model
 from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
 from ..forms import PostForm
-from ..models import Group, Post, User
+from ..models import Group, Post, User, Comment
+
+User = get_user_model()
 
 TEMP_MEDIA_ROOT = tempfile.mkdtemp(dir=settings.BASE_DIR)
 
@@ -31,15 +33,22 @@ class PostCreateFormTests(TestCase):
             slug='test_slug',
             description='Тестовое описание',
         )
+        cls.form = PostForm()
         cls.post = Post.objects.create(
             author=cls.user,
-            text='Тестовый пост'
+            text='Тестовый пост',
         )
-        cls.author_client.force_login(cls.post.author)
-        cls.form = PostForm()
         cls.form_data = {
             'text': f'{cls.post.text}',
             'group': f'{cls.group.id}',
+        }
+        cls.author_client.force_login(cls.post.author)
+        cls.comment = Comment.objects.create(
+            author=cls.user,
+            text='Тестовый коммент',
+        )
+        cls.comment_form_data = {
+            'text': f'{cls.comment.text}',
         }
 
     @classmethod
@@ -47,16 +56,16 @@ class PostCreateFormTests(TestCase):
         super().tearDownClass()
         shutil.rmtree(TEMP_MEDIA_ROOT, ignore_errors=True)
 
-    def test_create_task(self):
+    def test_create_form(self):
         """Форма с картинкой создает запись в Post."""
         posts_count = Post.objects.count()
-        small_gif = (
-            b'\x47\x49\x46\x38\x39\x61\x02\x00'
-            b'\x01\x00\x80\x00\x00\x00\x00\x00'
-            b'\xFF\xFF\xFF\x21\xF9\x04\x00\x00'
-            b'\x00\x00\x00\x2C\x00\x00\x00\x00'
-            b'\x02\x00\x01\x00\x00\x02\x02\x0C'
-            b'\x0A\x00\x3B'
+        small_gif = (            
+             b'\x47\x49\x46\x38\x39\x61\x02\x00'
+             b'\x01\x00\x80\x00\x00\x00\x00\x00'
+             b'\xFF\xFF\xFF\x21\xF9\x04\x00\x00'
+             b'\x00\x00\x00\x2C\x00\x00\x00\x00'
+             b'\x02\x00\x01\x00\x00\x02\x02\x0C'
+             b'\x0A\x00\x3B'
         )
         uploaded = SimpleUploadedFile(
             name='small.gif',
@@ -156,3 +165,60 @@ class PostCreateFormTests(TestCase):
                 text=self.post.text,
             ).exists()
         )
+    
+
+    def test_create_comment(self):
+        """Проверка создания комментария."""
+        comment_count = Comment.objects.count()
+        response = self.authorized_client.post(
+            reverse(
+                'posts:add_comment',
+                kwargs={'post_id': f'{self.post.id}'}),
+            data=self.comment_form_data,
+            follow=True
+        )
+        self.assertRedirects(response, reverse(
+            'posts:post_detail',
+            kwargs={'post_id': f'{self.post.id}'}))
+        self.assertEqual(Comment.objects.count(), comment_count + 1)
+        self.assertTrue(
+            Comment.objects.filter(
+                text=self.comment.text,
+                author=self.user,
+            ).exists()
+        )
+
+    def test_comments_guest_redirect(self):
+        """Гость не может комментировать посты и перенаправляется на страницу логина."""
+        comment_count = Comment.objects.count()
+        response = self.guest_client.post(
+            reverse(
+                'posts:add_comment',
+                kwargs={'post_id': f'{self.post.id}'}),
+            data=self.comment_form_data,
+            follow=True
+        )
+        self.assertRedirects(response, f'/auth/login/?next=/posts/{self.post.id}/comment/')
+        self.assertEqual(Comment.objects.count(), comment_count)
+        self.assertTrue(
+            Comment.objects.filter(
+                text=self.comment.text,
+                author=self.user,
+            ).exists()
+        )
+    
+    def test_comment_in_post_detail(self):
+        """Комментарий появляется на странице поста."""
+        response = self.authorized_client.post(
+            reverse(
+                'posts:add_comment',
+                kwargs={'post_id': f'{self.post.id}'}),
+            data=self.comment_form_data,
+            follow=True
+        )
+        self.assertEqual(
+            response.context['comments'][0].text,
+            self.comment.text
+        )
+
+
