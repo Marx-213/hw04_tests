@@ -10,7 +10,7 @@
 ### Установка
 Клонировать репозиторий и перейти в него в командной строке:
 ```
-git clone https://github.com/yandex-praktikum/hw02_community.git
+git clone https://github.com/yandex-praktikum/hw04_tests.git
 ``` 
 Установить и активировать виртуальное окружение:
 ``` 
