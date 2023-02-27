@@ -2,6 +2,8 @@
 ![Python](https://img.shields.io/badge/Python_3.7-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![Python](https://img.shields.io/badge/django_2.2.9-%23092E20?style=for-the-badge&logo=django&logoColor=white)
 ![Python](https://img.shields.io/badge/pytest-3776AB?style=for-the-badge&logo=python&logoColor=white)
+[![CI](https://github.com/yandex-praktikum/hw04_tests/actions/workflows/python-app.yml/badge.svg?branch=master)](https://github.com/yandex-praktikum/hw04_tests/actions/workflows/python-app.yml)
+
 Протестированы модели приложения posts в URL, Yatube, приложения Views, тестирование форм
 Написаны тесты, проверяющие:
 - View-функции используют правильные html-шаблоны.
@@ -25,5 +27,3 @@ source env/bin/activate
 python3 -m pip install --upgrade pip
 pip install -r requirements.txt
 ``` 
-
-[![CI](https://github.com/yandex-praktikum/hw04_tests/actions/workflows/python-app.yml/badge.svg?branch=master)](https://github.com/yandex-praktikum/hw04_tests/actions/workflows/python-app.yml)
